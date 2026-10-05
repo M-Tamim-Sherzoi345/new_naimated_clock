@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+  <title>Futuristic Clock</title>
+  <style>
+:root {
+  --size: min(84vw, 54vh, 540px);
+  --size: min(84vw, 54svh, 540px);
+  --bg: #04040a;
+  --cyan: #2ff3e0;
+  --green: #22ff9c;
+  --red: #ff2d55;
+  --text: #f4f6ff;
+  --muted: rgba(244, 246, 255, 0.55);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
+body {
+  background:
+    radial-gradient(60% 50% at 50% 45%, rgba(30, 24, 60, 0.55), transparent 70%),
+    var(--bg);
+  color: var(--text);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+}
+
+.stage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.4rem, 1.6vh, 0.9rem);
+  padding: 1rem;
+}
+
+/* ---------- Clock + background glows ---------- */
+.clock-wrap {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  margin-bottom: clamp(0.8rem, 3vh, 2rem);
+}
+
+.blob {
+  position: absolute;
+  width: 58%;
+  height: 58%;
+  border-radius: 50%;
+  filter: blur(22px);
+  opacity: 0.9;
+  will-change: transform;
+}
+
+.blob--pink {
+  top: -13%;
+  left: -15%;
+  background: linear-gradient(135deg, #ff5ad1 0%, #9b3dff 55%, #5b2bff 100%);
+  box-shadow: 0 0 120px rgba(190, 70, 255, 0.55);
+  animation: floatPink 9s ease-in-out infinite;
+}
+
+.blob--lime {
+  bottom: -13%;
+  right: -15%;
+  background: linear-gradient(315deg, #d8ff3d 0%, #5dff6a 50%, #19f5a0 100%);
+  box-shadow: 0 0 120px rgba(150, 255, 70, 0.5);
+  animation: floatLime 11s ease-in-out infinite;
+}
+
+@keyframes floatPink {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(5%, 6%) scale(1.07); }
+}
+
+@keyframes floatLime {
+  0%, 100% { transform: translate(0, 0) scale(1.04); }
+  50%      { transform: translate(-6%, -5%) scale(0.96); }
+}
+
+.clock {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.14), transparent 45%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.015));
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 0 50px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(47, 243, 224, 0.14);
+  animation: halo 5s ease-in-out infinite;
+}
+
+@keyframes halo {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 50px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 30px 80px rgba(0, 0, 0, 0.6),
+      0 0 50px rgba(47, 243, 224, 0.12),
+      0 0 100px rgba(170, 80, 255, 0.12);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 50px rgba(255, 255, 255, 0.07),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 30px 80px rgba(0, 0, 0, 0.6),
+      0 0 80px rgba(47, 243, 224, 0.28),
+      0 0 150px rgba(170, 80, 255, 0.24);
+  }
+}
+
+.layer { position: absolute; inset: 0; }
+
+/* ---------- Ticks ---------- */
+.tick {
+  position: absolute;
+  inset: 0;
+  transform: rotate(calc(var(--i) * 6deg));
+}
+
+.tick::before {
+  content: "";
+  position: absolute;
+  top: 3.2%;
+  left: 50%;
+  width: 0.35%;
+  height: 1.6%;
+  min-width: 1px;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.tick.major::before {
+  width: 0.7%;
+  height: 3.4%;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
+}
+
+/* ---------- Numbers ---------- */
+.num {
+  position: absolute;
+  inset: 0;
+  transform: rotate(calc(var(--i) * 30deg));
+}
+
+.num span {
+  position: absolute;
+  top: 13.5%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(calc(var(--i) * -30deg));
+  font-size: calc(var(--size) * 0.078);
+  font-weight: 300;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Hands ---------- */
+.hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(0deg);
+  border-radius: 999px;
+  will-change: transform;
+}
+
+.hand--hour {
+  width: 1.9%;
+  height: 24%;
+  background: linear-gradient(to top, var(--green), var(--cyan));
+  box-shadow: 0 0 16px rgba(34, 255, 156, 0.55);
+}
+
+.hand--minute {
+  width: 1.3%;
+  height: 35%;
+  background: linear-gradient(to top, var(--cyan), #7dfcff);
+  box-shadow: 0 0 16px rgba(47, 243, 224, 0.6);
+}
+
+.hand--second {
+  width: 0.55%;
+  height: 40%;
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red), 0 0 26px rgba(255, 45, 85, 0.7);
+}
+
+.hand--second::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 16%;
+  background: inherit;
+  border-radius: inherit;
+}
+
+/* ---------- Hub ---------- */
+.hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4.6%;
+  height: 4.6%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.16), 0 0 18px rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Digital readout ---------- */
+.digital {
+  font-family: "SF Mono", "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: clamp(1.5rem, 5.5vw, 2.3rem);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 18px rgba(47, 243, 224, 0.55);
+}
+
+.date {
+  font-size: clamp(0.8rem, 2.6vw, 1rem);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob, .clock { animation: none; }
+}
+
+/* ---------- Android full-screen ---------- */
+body { display: grid; place-items: center; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.phone { position: relative; width: 100%; height: 100%; }
+.notch, .home-bar { display: none; }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="notch" aria-hidden="true"></div>
+    <main class="stage">
+    <div class="clock-wrap">
+      <div class="blob blob--pink" aria-hidden="true"></div>
+      <div class="blob blob--lime" aria-hidden="true"></div>
+
+      <div class="clock" role="img" aria-label="Analog clock showing the current time">
+        <div class="layer" id="ticks"></div>
+        <div class="layer" id="numbers"></div>
+        <div class="hand hand--hour" id="hour"></div>
+        <div class="hand hand--minute" id="minute"></div>
+        <div class="hand hand--second" id="second"></div>
+        <div class="hub"></div>
+      </div>
+    </div>
+
+    <time class="digital" id="digital">00:00:00</time>
+    <p class="date" id="date"></p>
+    </main>
+    <div class="home-bar" aria-hidden="true"></div>
+  </div>
+
+  <script>
+(() => {
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  const hourHand = $("hour");
+  const minuteHand = $("minute");
+  const secondHand = $("second");
+  const digital = $("digital");
+  const dateEl = $("date");
+
+  // Build 60 ticks (major every 5) and numbers 1–12.
+  const ticks = $("ticks");
+  for (let i = 0; i < 60; i++) {
+    const t = document.createElement("div");
+    t.className = "tick" + (i % 5 === 0 ? " major" : "");
+    t.style.setProperty("--i", i);
+    ticks.appendChild(t);
+  }
+
+  const numbers = $("numbers");
+  for (let i = 1; i <= 12; i++) {
+    const n = document.createElement("div");
+    n.className = "num";
+    n.style.setProperty("--i", i);
+    const label = document.createElement("span");
+    label.textContent = i;
+    n.appendChild(label);
+    numbers.appendChild(n);
+  }
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const setAngle = (el, deg) => {
+    el.style.transform = `translateX(-50%) rotate(${deg}deg)`;
+  };
+
+  let lastSecond = -1;
+
+  function frame() {
+    const now = new Date();
+    const ms = now.getMilliseconds();
+    const seconds = now.getSeconds() + ms / 1000;
+    const minutes = now.getMinutes() + seconds / 60;
+    const hours = (now.getHours() % 12) + minutes / 60;
+
+    setAngle(secondHand, seconds * 6);   // 360° / 60 s
+    setAngle(minuteHand, minutes * 6);   // 360° / 60 min
+    setAngle(hourHand, hours * 30);      // 360° / 12 h
+
+    // Text only needs refreshing once per second.
+    const s = now.getSeconds();
+    if (s !== lastSecond) {
+      lastSecond = s;
+      digital.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(s)}`;
+      dateEl.textContent = now.toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+})();
+
+</script>
+</body>
+</html>
